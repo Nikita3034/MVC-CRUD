@@ -1,5 +1,5 @@
 <?php
 
-define('DB_USER', 'admin');
-define('DB_PASS', '1');
-define('DB_NAME', 'test');
+define('DB_USER', '');
+define('DB_PASS', '');
+define('DB_NAME', '');
