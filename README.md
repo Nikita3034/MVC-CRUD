@@ -1,1 +1,1 @@
-# skeleton_site
+# samopis
