@@ -1,1 +1,4 @@
 .history
+.vscode
+.DS_Store
+/core/db.params.php
