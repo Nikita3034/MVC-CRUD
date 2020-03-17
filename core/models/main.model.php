@@ -1,24 +1,46 @@
 <?php
 
 /*
-    Главная страница
+    Main page
 */
-class Main extends Site {
-
-    function __construct(){
-
-        self::$html_path = HTML_PATH .'/main.html';
+class Main extends Site 
+{
+   /**
+    * __construct
+    *
+    * @return void
+    */
+    function __construct()
+    {
+        // return the necessary
+        return true;
     }
 
-    public function read(){
-
-        $this->readFormate();
+    /**
+     * read
+     *
+     * @return void
+     */
+    public function read()
+    {
+        return $this->readFormate();
     }
 
-    private function readFormate(){
+    /**
+     * readFormate
+     *
+     * @return void
+     */
+    private function readFormate()
+    {
+        ob_start();
 
-        $params['{{title}}'] = 'Главная страница';
+        require_once TPL_PATH .'/main.tpl.php';
 
-        $this->setParams($params);
+        $content = ob_get_contents();
+        
+        ob_end_clean();
+
+        return $content;
     }
 }

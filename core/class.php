@@ -7,12 +7,15 @@ class Site {
 
     protected static $db = null;
 
-    protected static $params = [];
+    protected static $tpl = null;
 
-    protected static $html_path = null;
-
-    function __construct(){
-
+   /**
+    * __construct
+    *
+    * @return void
+    */
+    function __construct()
+    {
         $model_name = 'main';
 
         $action = substr($_SERVER['REQUEST_URI'], 1);
@@ -26,61 +29,81 @@ class Site {
 
         self::$model_name = $model_name;
 
-        $this->initModel();
+        $this->init();
 
-        $this->printHTML();
+        $this->print();
 
         exit;
     }
 
-    private function initModel(){
-
+    /**
+     * init
+     *
+     * @return void
+     */
+    private function init()
+    {
         if( file_exists(MODEL_PATH .'/'. self::$model_name . '.model.php') )
             require_once MODEL_PATH .'/'. self::$model_name . '.model.php';
         else
             die('ничего не найдено');
 
-        if( isset($_POST['action']) && !empty($_POST['action']) )
+        if( $this->isAjax() )
             $this->loadModel();
-        else {
+        else{
+
             $model = $this->getModel();
-            $model->read();
+            self::$tpl = $model->read();
         }
     }
 
-    private function loadModel(){
+    /**
+     * loadModel
+     *
+     * @return void
+     */
+    private function loadModel()
+    {
+        if( empty($_POST['action']) )
+            die('action not found');
 
         $action = explode('/', $_POST['action']);
+
         self::$model_name = $action[0];
         self::$method_name = $action[1];
 
-        if ($this->isAjax()) {
+        if( !method_exists(self::$model_name, self::$method_name ) )
+            die('method not exists');
 
-            if( !method_exists(self::$model_name, self::$method_name ) )
-                die('ничего не найдено');
+        if( $this->isAjax() ){
 
             $return = $this->getModel()->{self::$method_name}();
             
-            print json_encode($return);
+            echo json_encode($return);
 
             die();
             
-        } else {
-
-            if( !method_exists(self::$model_name, self::$method_name ) )
-                die('ничего не найдено');
-
+        } else
             $this->getModel()->{self::$method_name}();
-        }
     }
 
-    private function getModel(){
-
+    /**
+     * getModel
+     *
+     * @return void
+     */
+    private function getModel()
+    {
         return new self::$model_name;
     }
 
-    private function dbConnect(){
-
+    /**
+     * dbConnect
+     *
+     * @return void
+     */
+    private function dbConnect()
+    {
         require_once CORE_PATH.'/db.params.php';
         require_once CORE_PATH.'/db.class.php';
 
@@ -93,66 +116,106 @@ class Site {
         self::$db = new SafeMySQL($db_params);
     }
 
-    public function getDB(){
-
+    /**
+     * getDB
+     *
+     * @return void
+     */
+    public function getDB()
+    {
         $this->dbConnect();
 
         return self::$db;
     }
 
-    private function getHeader(){
+    /**
+     * getHeader
+     *
+     * @return void
+     */
+    private function getHeader()
+    {
+        ob_start();
 
-        return HTML_PATH .'/header.html';
+        require_once HTML_PATH .'/header.html';
+
+        $content = ob_get_contents();
+
+        ob_end_clean();
+        
+        return $content;
     }
 
-    private function getFooter(){
+    /**
+     * getFooter
+     *
+     * @return void
+     */
+    private function getFooter()
+    {
+        ob_start();
 
-        return HTML_PATH .'/footer.html';
+        require_once HTML_PATH .'/footer.html';
+
+        $content = ob_get_contents();
+
+        ob_end_clean();
+        
+        return $content;
     }
 
-    protected function getBody(){
+    /**
+     * getMenu
+     *
+     * @return void
+     */
+    private function getMenu()
+    {
+        ob_start();
 
-        return self::$html_path;
+        require_once HTML_PATH .'/menu.html';
+
+        $content = ob_get_contents();
+
+        ob_end_clean();
+        
+        return $content;
     }
 
-    protected function printHTML(){
+    /**
+     * getBody
+     *
+     * @return void
+     */
+    protected function getBody()
+    {
+        $this->getModel()->read();
 
-        $html = file_get_contents($this->getHeader());
+        return self::$tpl;
+    }
 
-        $html .= file_get_contents($this->getBody());
-
-        $html .= file_get_contents($this->getFooter());
-
-        $params['{{title}}'] = 'Site';
+    /**
+     * print
+     *
+     * @return void
+     */
+    protected function print()
+    {
+        $html = $this->getHeader();
+        $html = $this->getMenu();
+        $html .= $this->getBody();
+        $html .= $this->getFooter();
             
-        $this->setParams($params);
-        
-        print $this->mergeParams($html);
+        print $html;
     }
 
-    protected function setParams($params){
-
-        self::$params += $params;
-    }
-
-    protected function mergeParams( $html ){
-
-        if( !$html )
-            return $html;
-
-        if ($this->getParams())
-            $html = str_replace(array_keys($this->getParams()), $this->getParams(), $html);
-        
-        return $html;
-    }
-
-    protected function getParams(){
-
-        return self::$params;
-    }
-
-    protected function isAjax(){
-
+    /**
+     * isAjax
+     *
+     * @return void
+     */
+    protected function isAjax()
+    {
         if( !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' )
             return true;
 

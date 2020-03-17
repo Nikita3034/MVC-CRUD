@@ -1,19 +1,40 @@
 jQuery(document).ready(function(){
 
-    jQuery('body').on('click', '.delete-one-note', function(e){
+    jQuery('body').on('click', '.actions-one-note', function(e){
 
         e.preventDefault();
 
-        var url = jQuery(this).data('action');
-        var note_id = jQuery(this).data('id');
+        var _this = jQuery(this);
+
+        var tr = _this.closest('tr');
+
+        var entity = tr.data('entity');
+        var action = _this.data('action');
+
+        var data = "action=" + entity + '/' + action;
+
+        var note_id = _this.data('id');
+
+        if( typeof note_id != "undefined" )
+            data += "&note_id=" + note_id;
+
+        var form_data = "&" + tr.find('form').serialize();
+
+        if( typeof form_data != "undefined" )
+            data += form_data;
 
         jQuery.ajax({
-            url : url,
+            url : entity + '/' + action,
             type : "POST",
-            data : "action=" + url + "&note_id=" + note_id,
+            data : data,
             dataType : 'json',
             success : function( res ) {
-                console.log('success');
+
+                if( res.status ){
+                    location.reload(true);
+                    console.log('success');
+                }
+
             },
             error : function ( jqXHR, textStatus, errorThrown ) {
                 console.log('error');
@@ -39,7 +60,12 @@ jQuery(document).ready(function(){
             data : data,
             dataType : 'json',
             success : function( res ) {
-                console.log('success');
+
+                if( res.status ){
+                    location.reload(true);
+                    console.log('success');
+                }
+                
             },
             error : function ( jqXHR, textStatus, errorThrown ) {
                 console.log('error');

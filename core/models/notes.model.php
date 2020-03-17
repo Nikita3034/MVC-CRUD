@@ -1,37 +1,38 @@
 <?php
 
 /*
-    CRUD записей
+    Notes page
 */
-class Notes extends Site {
-
-    function __construct(){
-
-        self::$html_path = HTML_PATH .'/notes.html';
+class Notes extends Site 
+{
+   /**
+    * __construct
+    *
+    * @return void
+    */
+    function __construct()
+    {
+        // return the necessary
+        return true;
     }
 
-    public function create(){
-
-        $this->createFormate();
+    /**
+     * create
+     *
+     * @return void
+     */
+    public function create()
+    {
+        return $this->createFormate();
     }
 
-    public function read(){
-
-        $this->readFormate();
-    }
-
-    public function update(){
-
-        $this->updateFormate();
-    }
-
-    public function delete(){
-
-        $this->deleteFormate();
-    }
-
-    private function createFormate(){
-
+    /**
+     * createFormate
+     *
+     * @return void
+     */
+    private function createFormate()
+    {
         $input_data = $_POST;
 
         $insert_data = [
@@ -44,10 +45,27 @@ class Notes extends Site {
         $sql = "INSERT INTO ?n SET ?u";
 
         $db->query($sql, 'notes', $insert_data);
+
+        return ['status' => true];
     }
 
-    private function readFormate(){
+    /**
+     * read
+     *
+     * @return void
+     */
+    public function read()
+    {
+        return $this->readFormate();
+    }
 
+    /**
+     * readFormate
+     *
+     * @return void
+     */
+    private function readFormate()
+    {
         $db = $this->getDB();
 
         $sql = "SELECT * FROM ?n";
@@ -55,32 +73,11 @@ class Notes extends Site {
         $result = $db->getAll($sql, 'notes');
 
         if( $result ) {
+
             ob_start();
-            ?>
-            <table>
+            
+            require_once TPL_PATH . '/notes.tpl.php';
 
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Текст</th>
-                        <th>Дата последнего обновления</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                <?php foreach( $result as $key => $value ){ ?>
-                    <tr>
-                        <td><?=$value['ID']?></td>
-                        <td><?=$value['Text']?></td>
-                        <td><?=date("d.m.Y H:i", $value['DateUpdate'])?></td>
-                        <td><a class="delete-one-note" href="#" data-action="notes/delete" data-id="<?=$value['ID']?>">удалить</a></td>
-                    </tr>
-                <?php } ?>
-                </tbody>
-
-            </table>
-            <?php
             $content = ob_get_contents();
 
             ob_end_clean();
@@ -88,17 +85,61 @@ class Notes extends Site {
         } else
             $content = 'Записей не найдено';
 
-        $params['{{notes}}'] = $content;
-
-        $this->setParams($params);
+        return $content;
     }
 
-    private function updateFormate(){
-
+    /**
+     * update
+     *
+     * @return void
+     */
+    public function update()
+    {
+        return $this->updateFormate();
     }
 
-    private function deleteFormate(){
+    /**
+     * updateFormate
+     *
+     * @return void
+     */
+    private function updateFormate()
+    {
+        $input_data = $_POST;
 
+        $note_id = (int) $input_data['note_id'];
+
+        $update_data = [
+            'Text' => $input_data['text'],
+            'DateUpdate' => time()
+        ];
+
+        $db = $this->getDB();
+
+        $sql = "UPDATE ?n SET ?u WHERE `ID` = ?i";
+
+        $db->query($sql, 'notes', $update_data, $note_id);
+
+        return  ['status' => true];
+    }
+
+    /**
+     * delete
+     *
+     * @return void
+     */
+    public function delete()
+    {
+        return $this->deleteFormate();
+    }
+
+    /**
+     * deleteFormate
+     *
+     * @return void
+     */
+    private function deleteFormate()
+    {
         $input_data = $_POST;
 
         $note_id = (int) $input_data['note_id'];
@@ -108,5 +149,7 @@ class Notes extends Site {
         $sql = "DELETE FROM ?n WHERE `ID` = ?i";
 
         $db->query($sql, 'notes', $note_id);
+
+        return ['status' => true];
     }
 }
