@@ -46,7 +46,7 @@ class Site {
         if( file_exists(MODEL_PATH .'/'. self::$model_name . '.model.php') )
             require_once MODEL_PATH .'/'. self::$model_name . '.model.php';
         else
-            die('ничего не найдено');
+            die('file not exists');
 
         if( $this->isAjax() )
             $this->loadModel();

@@ -1,7 +1,7 @@
 <form class="ajax-form-submit" action="/notes/create" method="POST">
     <input type="hidden" name="action" value="notes/create">
-    <input type="text" name="text" placeholder="Текст">
-    <input type="submit" value="Добавить">
+    <input type="text" name="text" placeholder="enter text">
+    <input type="submit" value="add">
 </form>
 
 <div>
@@ -11,9 +11,9 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Текст</th>
-                <th>Дата последнего обновления</th>
-                <th>Действия</th>
+                <th>Text</th>
+                <th>Date update</th>
+                <th>Actions</th>
             </tr>
         </thead>
 
@@ -32,8 +32,8 @@
                     <?=date("d.m.Y H:i", $value['DateUpdate'])?>
                 </td>
                 <td>
-                    <a href="#" class="actions-one-note" data-action="update" data-id="<?=$value['ID']?>">изменить</a>
-                    <a href="#" class="actions-one-note" data-action="delete" data-id="<?=$value['ID']?>">удалить</a>
+                    <a href="#" class="actions-one-note" data-action="update" data-id="<?=$value['ID']?>">update</a>
+                    <a href="#" class="actions-one-note" data-action="delete" data-id="<?=$value['ID']?>">delete</a>
                 </td>
             </tr>
         <?php } ?>

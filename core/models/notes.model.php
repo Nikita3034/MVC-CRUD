@@ -83,7 +83,7 @@ class Notes extends Site
             ob_end_clean();
 
         } else
-            $content = 'Записей не найдено';
+            $content = 'Notes not found';
 
         return $content;
     }
